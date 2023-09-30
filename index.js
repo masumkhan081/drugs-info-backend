@@ -1,86 +1,48 @@
-const mongoose = require("mongoose");
 const express = require("express");
-// const session = require("express-session");
-// const passport = require("passport");
-// const flash = require("connect-flash");
-require("dotenv").config();
-// const bodyParser = require("body-parser");
-// const jwt = require("jsonwebtoken");
-// const cookieParser = require("cookie-parser");
-// const ejsLayout = require("express-ejs-layouts");
-// const { verifyRoute } = require("./src/routes/verifyRoute");
-// const { resetRoute } = require("./src/routes/resetRoute");
-// const { setGroups } = require("./src/controllers/genController");
-// -------------------------------------------            -connection
-
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
-const conn = mongoose.connection;
-conn.on("connected", function () {
-  console.log("database is connected successfully");
-  // const db = conn.db;
-  // setGroups();
-});
-conn.on("disconnected", function () {
-  console.log("database is disconnected");
-});
-conn.on("error", (err) => {
-  console.log("Way to go ! web application with no internet ?",err);
-});
-
-// --------------------------------------------        server-start
 const app = express();
-app.listen(process.env.PORT, () => {
-  console.log(`port:${process.env.PORT}`);
-});
-// ------------------------------------------          view engine and layout
-// app.set("view engine", "ejs");
-// app.use(ejsLayout);
+require("dotenv").config();
+const initDB = require("./src/datatier/mongodb");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require('cors')
 
-// ------------------------------------------          middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-// app.use(cookieParser());
+// initialize the database
+initDB();
 
-// const oneDay = 1000 * 60 * 60 * 24;
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     saveUninitialized: true,
-//     cookie: { maxAge: oneDay },
-//     resave: false,
-//   })
+// server creation
+// const server = app.listen(process.env.PORT, () =>
+//   console.log("listening at: ", process.env.PORT)
 // );
-// app.use(flash());
-//   ------------------------------------------            routes
-app.get("/",(req,res)=>{
-  res.send("hello fucker")
-})
-app.use("", require("./src/routes/home"));
-app.use("/companies", require("./src/routes/cmpRoutes"));
-app.use("/api", require("./src/routes/json"));
-// app.use("", require("./src/routes/signupRoute"));
-// app.use("", require("./src/routes/signinRoute"));
-// app.use("/verify", verifyRoute);
-// app.use("/reset", resetRoute);
-// app.use("", require("./routes/google"));
-//app.use("", require("./routes/linkedin"));
-//app.use("", require("./routes/facebook"));
-//app.use("", require("./routes/github"));
-app.use("/drugs", require("./src/routes/drgRoutes"));
-app.use("/groups", require("./src/routes/grpRoutes"));
-app.use("/generics", require("./src/routes/genRoutes"));
-app.use("/formulations", require("./src/routes/frmRoutes"));
+// middlewares
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(cors({credentials:true,origin:'http://localhost:5173'})); 
+// 
+// const whitelist = ['http://localhost:5173', 'http://example2.com'];
+// const corsOptions = {
+//   credentials: true, // This is important.
+//   origin: (origin, callback) => {
+//     if(whitelist.includes(origin))
+//       return callback(null, true)
+//       callback(new Error('Not allowed by CORS'));
+//   }
+// }
+// app.use(cors(corsOptions));
 
 
-//
-// app.use(passport.initialize());
-// app.use(passport.session());
+// routes
+app.use("/auth", require("./src/routes/authRoutes"));
 
-/*
-git init
-git add *
-git commit -m "msg"
-git push
-*/
+app.listen(3000, () => {
+  console.log("running ...");
+});
+
+// // close the server
+app.get("/quit", function (req, res) {
+  res.send("closed");
+});
+// server closing endpoint; no need what so ever
+app.get("/", (req, res) => {
+  res.send(`<a href="/quit">quit</a>`);
+});
