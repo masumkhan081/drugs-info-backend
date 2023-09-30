@@ -44,5 +44,5 @@ app.get("/quit", function (req, res) {
 });
 // server closing endpoint; no need what so ever
 app.get("/", (req, res) => {
-  res.send(`<a href="/quit">quit</a>`);
+  res.send(`<a href="/quit">quit drugs.info or whatever !</a>`);
 });
