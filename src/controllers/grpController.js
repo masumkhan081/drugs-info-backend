@@ -3,34 +3,31 @@ const { setGroups } = require("./genController");
 const obj = require("./renderMaster");
 //
 
-function renderGroups(req, res) {
+async function renderGroups(req, res) {
   const { pagenumb } = req.query;
-  let msg = req.flash("msg");
   let skip = 0;
   if (pagenumb) {
     skip = obj.limit * pagenumb - obj.limit;
   }
+  let count = await groupModel.count();
+  let msg = "";
   groupModel
     .find()
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
     .then((data) => {
-      groupModel.count({}, function (err, count) {
-        msg = count == 0 ? obj.msg_no_data : msg;
-
-        res.render("page_group", {
-          groups: data,
-          msg,
-          count,
-          skip,
-          authstatus: false,
-          limit: obj.limit,
-        });
+      res.send({
+        groups: data,
+        msg,
+        count,
+        skip,
+        authstatus: false,
+        limit: obj.limit,
       });
     })
     .catch((err) => {
-      res.send(obj.msg_err_load);
+      res.send(err);
     });
 }
 

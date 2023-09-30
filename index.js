@@ -10,10 +10,10 @@ require("dotenv").config();
 // const ejsLayout = require("express-ejs-layouts");
 // const { verifyRoute } = require("./src/routes/verifyRoute");
 // const { resetRoute } = require("./src/routes/resetRoute");
-const { setGroups } = require("./src/controllers/genController");
+// const { setGroups } = require("./src/controllers/genController");
 // -------------------------------------------            -connection
 
-mongoose.connect(process.env.URI, { useNewUrlParser: true });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 const conn = mongoose.connection;
 conn.on("connected", function () {
   console.log("database is connected successfully");
@@ -23,8 +23,8 @@ conn.on("connected", function () {
 conn.on("disconnected", function () {
   console.log("database is disconnected");
 });
-conn.on("error", () => {
-  console.log("Way to go ! web application with no internet ?");
+conn.on("error", (err) => {
+  console.log("Way to go ! web application with no internet ?",err);
 });
 
 // --------------------------------------------        server-start
@@ -54,7 +54,12 @@ app.use(express.urlencoded({ extended: true }));
 // );
 // app.use(flash());
 //   ------------------------------------------            routes
+app.get("/",(req,res)=>{
+  res.send("hello fucker")
+})
 app.use("", require("./src/routes/home"));
+app.use("/companies", require("./src/routes/cmpRoutes"));
+app.use("/api", require("./src/routes/json"));
 // app.use("", require("./src/routes/signupRoute"));
 // app.use("", require("./src/routes/signinRoute"));
 // app.use("/verify", verifyRoute);
@@ -67,8 +72,8 @@ app.use("/drugs", require("./src/routes/drgRoutes"));
 app.use("/groups", require("./src/routes/grpRoutes"));
 app.use("/generics", require("./src/routes/genRoutes"));
 app.use("/formulations", require("./src/routes/frmRoutes"));
-app.use("/companies", require("./src/routes/cmpRoutes"));
-app.use("/api", require("./src/routes/json"));
+
+
 //
 // app.use(passport.initialize());
 // app.use(passport.session());

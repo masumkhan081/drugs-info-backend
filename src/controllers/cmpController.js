@@ -2,34 +2,29 @@ const obj = require("./renderMaster");
 const { companyModel } = require("../models/models");
 //
 
-function renderCompanies(req, res) {
-  let msg = req.flash("msg");
-
+async function renderCompanies(req, res) {
   const { pagenumb } = req.query;
   let skip = 0;
   if (pagenumb) {
     skip = obj.limit * pagenumb - obj.limit;
   }
+
+  let count = await companyModel.count();
   companyModel
     .find()
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
     .then((companies) => {
-      companyModel.count({}, function (err, count) {
-        msg = count == 0 ? "No Data In System" : msg;
-        res.render("page_company", {
-          companies,
-          msg,
-          count,
-          skip,
-          authstatus:false,
-          limit: obj.limit,
-        });
+      res.send({
+        companies,
+        count,
+        skip,
+        limit: obj.limit,
       });
     })
     .catch((err) => {
-      res.send(obj.msg_err_load);
+      res.send(obj.msg_err_load + "  err: " + err);
     });
 }
 

@@ -4,40 +4,34 @@ const { render_now, limit } = require("./renderMaster");
 const obj = require("./renderMaster");
 //
 
-function renderFormulations(req, res, searchObj = { name: "" }) {
+async function renderFormulations(req, res, searchObj = { name: "" }) {
   const { pagenumb } = req.query;
-  let msg = req.flash("msg");
+
   let skip = 0;
   if (pagenumb) {
     skip = obj.limit * pagenumb - obj.limit;
-    // console.log(obj.limit + limit + "skip:   " + skip)
   }
+
+  let count = await formulationModel.count();
+
+  let msg = searchObj.name ? `Searched for '${searchObj.name}'` : "plain--";
+
   formulationModel
-    .find({
-      name: { $regex: new RegExp(searchObj.name, "gi") },
-    })
+    .find()
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
     .then((formulations) => {
-      console.log(JSON.stringify(">> " + formulations));
-      formulationModel.count({}, function (err, count) {
-        msg = count == 0 ? obj.msg_no_data : msg;
-        searchObj.name
-          ? (msg = `Searched for '${searchObj.name}'`)
-          : (msg = "plain--");
-        res.render("page_formulation", {
-          formulations,
-          msg,
-          count,
-          skip,
-          authstatus: false,
-          limit: obj.limit,
-        });
+      res.send({
+        formulations,
+        msg,
+        count,
+        skip,
+        limit: obj.limit,
       });
     })
     .catch((err) => {
-      res.send(obj.msg_err_load);
+      res.send(err);
     });
 }
 
