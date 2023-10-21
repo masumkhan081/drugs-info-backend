@@ -1,34 +1,41 @@
-const userModel = require("../model/user");
+const jwt = require("jsonwebtoken");
+const { User, Staff } = require("../models");
 require("dotenv").config();
 const tokenSecret = process.env.JWT_SECRET;
-const nodemailer = require("nodemailer");
-const jwt = require("jsonwebtoken");
-const CryptoJS = require("crypto-js");
-const { sendOtpMail } = require("./emailSender");
-
 const tokenHeaderKey = process.env.HEADER_KEY;
+const { sendNewUserMail, sendResetMail } = require("../util/mail");
 
-function markProfileValidation({otp,token,res}){
-
-
-  
-
-
-}
+//
 
 function logOut(req, res) {
   res.clearCookie(tokenHeaderKey);
   res.send("cleared. user logged out");
 }
 
-async function checkAndAddUser({ fullName, email, password, phone, res }) {
+async function checkUserAddition({ token, res }) {
+  const data = jwt.verify(token, tokenSecret);
+  if (data) {
+    const { staffId, expireAt, email, role } = data;
+    if (new Date().getTime() > expireAt) {
+      res.status(400).send({ message: "Reset link expired" });
+    } else {
+      (await Staff.findById(staffId))
+        ? res.status(200).send({ message: "ok ", data: { id, email, role } })
+        : res.status(400).send({ message: "Invalid reset link" });
+    }
+  } else {
+    res.status(400).send({ message: "Error processing link" });
+  }
+}
+
+async function saveUser({ fullName, email, password, phone, res }) {
   // already registered or not
-  const existence = await userModel.findOne({ email: email }).exec();
+  const existence = await User.findOne({ email: email }).exec();
 
   if (existence) {
     res.status(409).send("Email is already in use");
   } else {
-    const user = new userModel({ fullName, email, password, phone });
+    const user = new User({ fullName, email, password, phone });
     const saved = await user.save();
     if (saved) {
       // res.status(201).send({
@@ -36,17 +43,17 @@ async function checkAndAddUser({ fullName, email, password, phone, res }) {
       //   message: "An OTP has been sent. Please verify your email",
       // });
       // sendMail({ email: saved.email, res, actType: "verification" });
-      sendOtpMail({user:saved, res,})
+      sendNewUserMail({ user: saved, res });
     } else {
       res.status(400).send("Error creating account");
     }
   }
 }
 
-async function checkAndLoginUser({ email, password, res }) {
+async function loginUser({ email, password, res }) {
   res.status(400).send("Wrong Credentials");
   // already registered or not
-  const existence = await userModel.findOne({ email, password });
+  const existence = await User.findOne({ email, password });
 
   if (existence) {
     // email and associated password matched
@@ -75,7 +82,7 @@ async function checkAndLoginUser({ email, password, res }) {
   }
 }
 
-async function checkForpassReset({ token, res }) {
+async function checkPassReset({ token, res }) {
   var bytes = CryptoJS.AES.decrypt(token, tokenSecret);
   var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
@@ -84,12 +91,13 @@ async function checkForpassReset({ token, res }) {
   res.send("Hello");
 }
 
-async function updateNewPassword({ password, res }) {}
+async function updatePassword({ password, res }) {}
 
 module.exports = {
-  checkAndAddUser,
-  checkAndLoginUser,
+  checkUserAddition,
+  saveUser,
+  loginUser,
   logOut,
-  checkForpassReset,
-  updateNewPassword,
+  checkPassReset,
+  updatePassword,
 };
