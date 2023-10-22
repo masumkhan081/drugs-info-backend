@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 const initDB = require("./src/data-tier/mongodb");
-import { originControl } from "./src/middleware/middlewares";
+const { originControl } = require("./src/middleware/middlewares");
 
 // initialize the database
 initDB();

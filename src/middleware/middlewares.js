@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const tokenSecret = process.env.JWT_SECRET;
 const tokenHeaderKey = process.env.HEADER_KEY;
-const userModel = require("../model/user");
+const User = require("../models");
 
 function originControl(req, res, next) {
   res.header({ "Access-Control-Allow-Origin": "http://localhost:5173" });
@@ -12,7 +12,7 @@ function originControl(req, res, next) {
 async function authentication(req, res, next) {
   console.log(req.cookies[tokenHeaderKey]);
   if (req.cookies[tokenHeaderKey]) {
-    (await userModel.findById(JSON.parse(req.cookies[tokenHeaderKey]).id))
+    (await User.findById(JSON.parse(req.cookies[tokenHeaderKey]).id))
       ? next()
       : res.status(401).json("authentication failed");
   } else {
@@ -31,7 +31,7 @@ async function authentication(req, res, next) {
 async function authorization(req, res, next) {
   console.log(req.cookies[tokenHeaderKey]);
   if (req.cookies[tokenHeaderKey]) {
-    (await userModel.findById(JSON.parse(req.cookies[tokenHeaderKey]).id))
+    (await User.findById(JSON.parse(req.cookies[tokenHeaderKey]).id))
       ? next()
       : res.status(401).json("authentication failed");
   } else {
