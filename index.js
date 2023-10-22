@@ -5,15 +5,18 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 const initDB = require("./src/data-tier/mongodb");
+import { originControl } from "./src/middleware/middlewares";
 
 // initialize the database
 initDB();
 
 // middlewares
+// middlewares
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(originControl);
 //
 
 // routes
