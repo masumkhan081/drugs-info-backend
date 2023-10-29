@@ -2,6 +2,22 @@ const { Group } = require("../models");
 const obj = require("../data-tier/settings");
 //
 
+async function getAllGroups(req, res) {
+  
+  let msg = "";
+  Group.find()
+    .sort({ $natural: -1 }) 
+    .then((data) => {
+      res.send({
+        groups: data,
+        msg, 
+      });
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+}
+
 async function getGroups(req, res) {
   const { pagenumb } = req.query;
   let skip = 0;
@@ -56,6 +72,7 @@ async function deleteGroup(req, res) {
 
 module.exports = {
   getGroups,
+  getAllGroups,
   saveGroup,
   deleteGroup,
   updateGroup,

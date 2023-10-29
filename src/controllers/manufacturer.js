@@ -2,6 +2,21 @@ const obj = require("../data-tier/settings");
 const { MFR } = require("../models");
 //
 
+
+async function getAllMFR(req, res) {
+  MFR.find()
+    .sort({ $natural: -1 })
+    .then((manufacturers) => {
+      console.log("getAllMFR:  ", manufacturers);
+      res.send({
+        manufacturers,
+      });
+    })
+    .catch((err) => {
+      res.send(obj.msg_err_load + "  err: " + err);
+    });
+}
+
 async function getMFR(req, res) {
   const { pagenumb } = req.query;
   let skip = 0;
@@ -14,9 +29,9 @@ async function getMFR(req, res) {
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
-    .then((companies) => {
+    .then((manufacturers) => {
       res.send({
-        companies,
+        manufacturers,
         count,
         skip,
         limit: obj.limit,
@@ -32,10 +47,10 @@ async function saveMFR(req, res) {
   (await MFR.findOne({ name }))
     ? res.status(400).send({ message: "Already exist" })
     : (await new MFR({
-        name,
-      }).save())
-    ? res.status(200).send({ message: "Saved successfully" })
-    : res.status(400).send({ message: "Error saving new unit" });
+      name,
+    }).save())
+      ? res.status(200).send({ message: "Saved successfully" })
+      : res.status(400).send({ message: "Error saving new unit" });
 }
 
 async function updateMFR(req, res) {
@@ -53,6 +68,7 @@ async function deleteMFR(req, res) {
 }
 
 const cmpFunctions = {
+  getAllMFR,
   getMFR,
   saveMFR,
   deleteMFR,

@@ -2,6 +2,23 @@ const { Generic } = require("../models");
 const obj = require("../data-tier/settings");
 //
 
+async function getGenericByGroup(req, res) {
+  const id=req.params.id;
+   
+  let msg = "";
+  Generic.find({groupId:id})
+    .sort({ $natural: -1 }) 
+    .then((generics) => {
+      res.send({
+        generics,
+        msg, 
+      });
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+}
+
 async function getGenerics(req, res) {
   const { pagenumb } = req.query;
   let skip = 0;
@@ -14,13 +31,13 @@ async function getGenerics(req, res) {
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
-    .then((data) => {
+    .then((generics) => {
       res.send({
-        groups: data,
+        generics,
         msg,
         count,
         skip,
-        authstatus: false,
+
         limit: obj.limit,
       });
     })
@@ -49,7 +66,7 @@ async function updateGeneric(req, res) {
 }
 
 async function deleteGeneric(req, res) {
-  const { id } = req.params; 
+  const { id } = req.params;
   (await Generic.findByIdAndDelete(id))
     ? res.status(200).send({ message: "Deleted successfully" })
     : res.status(400).send({ message: "Error in deletion" });
@@ -57,6 +74,7 @@ async function deleteGeneric(req, res) {
 
 module.exports = {
   getGenerics,
+  getGenericByGroup,
   saveGeneric,
   deleteGeneric,
   updateGeneric,

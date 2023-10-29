@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const {
+  getGenericByGroup,
   getGenerics,
   saveGeneric,
   deleteGeneric,
@@ -7,8 +8,12 @@ const {
 } = require("../controllers/generic");
 //
 
-router.get("/", (req, res) => {
+router.get("/", (req, res) => { 
   getGenerics(req, res);
+});
+
+router.get("/:id", (req, res) => {
+  getGenericByGroup(req, res);
 });
 
 router.post("/", (req, res) => saveGeneric(req, res));

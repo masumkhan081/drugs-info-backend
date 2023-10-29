@@ -16,9 +16,9 @@ async function getStock(req, res, searchObj) {
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
-    .then((drugs) => {
+    .then((stock) => {
       res.status(200).send({
-        drugs,
+        stock,
         msg,
         count,
         skip,

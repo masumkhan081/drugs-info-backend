@@ -15,6 +15,7 @@ initDB();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(originControl);
 //
@@ -27,7 +28,7 @@ app.use("/groups", require("./src/routes/group"));
 app.use("/generics", require("./src/routes/generic"));
 app.use("/brands", require("./src/routes/brand"));
 app.use("/manufacturers", require("./src/routes/manufacturer"));
-app.use("/drugs", require("./src/routes/drug"));
+app.use("/stock", require("./src/routes/drug"));
 app.use("/sale", require("./src/routes/sale"));
 app.use("/purchases", require("./src/routes/purchase"));
 app.use("/staff", require("./src/routes/staff"));

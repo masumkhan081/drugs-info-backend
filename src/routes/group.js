@@ -2,14 +2,16 @@ const router = require("express").Router();
 //------------------------------------------------     model & controller
 const {
   getGroups,
+  getAllGroups,
   saveGroup,
   deleteGroup,
   updateGroup,
 } = require("../controllers/group");
 //
 router.get("/", (req, res) => {
-  getGroups(req, res);
-});
+  console.log("got hit ");
+  getAllGroups(req, res);
+}); 
 
 router.post("/", (req, res) => saveGroup(req, res));
 

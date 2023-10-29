@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
+  getAllMFR,
   getMFR,
   saveMFR,
   deleteMFR,
@@ -9,6 +10,10 @@ const {
 
 router.get("/", (req, res) => {
   getMFR(req, res);
+});
+
+router.get("/all", (req, res) => {
+  getAllMFR(req, res);
 });
 
 router.post("/", (req, res) => {
