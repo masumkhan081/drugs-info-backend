@@ -1,36 +1,39 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const brandSchema = new Schema({
+  name: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  generic: {
+    type: Schema.Types.ObjectId,
+    ref: "generics",
+    required: true,
+  },
+  mfr: {
+    type: Schema.Types.ObjectId,
+    ref: "manufacturers",
+    required: true,
+  },
+})
+brandSchema.index({ name: 'text', 'name': 'text' });
+
 const Brand = mongoose.model(
   "brands",
-  new Schema({
-    name: {
-      type: String,
-      unique: true,
-      required: true,
-    },
-    genericId: {
-      type: Schema.Types.ObjectId,
-      ref: "generics",
-      required: true,
-    },
-    mfrId: {
-      type: Schema.Types.ObjectId,
-      ref: "manufacturers",
-      required: true,
-    },
-  })
+  brandSchema
 );
 //
 const Drug = mongoose.model(
   "drugs",
   new Schema({
-    brandId: {
+    brand: {
       type: Schema.Types.ObjectId,
       ref: "brands",
       required: true,
     },
-    formulationId: {
+    formulation: {
       type: Schema.Types.ObjectId,
       ref: "formulations",
       required: true,
@@ -39,7 +42,7 @@ const Drug = mongoose.model(
       type: Number,
       required: true,
     },
-    unitId: {
+    unit: {
       type: Schema.Types.ObjectId,
       ref: "units",
       required: true,
@@ -58,7 +61,7 @@ const Drug = mongoose.model(
 const Generic = mongoose.model(
   "generics",
   new Schema({
-    groupId: {
+    group: {
       type: Schema.Types.ObjectId,
       ref: "groups",
       required: true,
@@ -128,7 +131,7 @@ const Sale = mongoose.model(
     },
     drugs: [
       {
-        drugId: {
+        drug: {
           type: Schema.Types.ObjectId,
           ref: "drugs",
           required: true,
@@ -153,7 +156,7 @@ const Purchase = mongoose.model(
     },
     drugs: [
       {
-        drugId: {
+        drug: {
           type: Schema.Types.ObjectId,
           ref: "drugs",
         },
@@ -171,7 +174,7 @@ const Purchase = mongoose.model(
 const Salary = mongoose.model(
   "salaries",
   Schema({
-    staffId: {
+    staff: {
       type: Schema.Types.ObjectId,
       ref: "staff",
       required: true,
@@ -198,7 +201,7 @@ const Salary = mongoose.model(
 const User = mongoose.model(
   "users",
   Schema({
-    staffId: {
+    staff: {
       type: Schema.Types.ObjectId,
       ref: "staff",
       required: true,
@@ -263,13 +266,13 @@ const Staff = mongoose.model(
       default: "salesman",
       required: true,
     },
-    isUser:{
-      type: Boolean, 
+    isUser: {
+      type: Boolean,
     },
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "users",
-      default:null
+      default: null
     },
   })
 );
@@ -277,7 +280,7 @@ const Staff = mongoose.model(
 const Attendance = mongoose.model(
   "attendances",
   Schema({
-    staffId: {
+    staff: {
       type: Schema.Types.ObjectId,
       ref: "staff",
       required: true,

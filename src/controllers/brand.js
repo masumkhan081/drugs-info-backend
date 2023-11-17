@@ -1,7 +1,7 @@
 const obj = require("../data-tier/settings");
 const { Brand } = require("../models");
 //
-async function getBrands(req, res, searchObj = { name: "" }) {
+async function getBrands(req, res, searchObj = { name: "alatro" }) {
   const { pagenumb } = req.query;
   let skip = 0;
   if (pagenumb) {
@@ -10,11 +10,16 @@ async function getBrands(req, res, searchObj = { name: "" }) {
   let count = await Brand.count();
   let msg = searchObj.name ? `Searched for '${searchObj.name}'` : "plain--";
 
-  Brand.find()
-    .sort({ $natural: -1 })
+  // Brand.find({ $text: { $search:  searchObj.name } })
+  Brand.find({ name: { '$in': searchObj.name } })
+    // .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
-    .then((brands) => {
+    .populate('mfr')
+    .populate({
+      path: 'generic',
+      populate: { path: 'group' },
+    }).then((brands) => {
       res.status(200).send({
         brands,
         msg,
@@ -34,17 +39,17 @@ async function saveBrand(req, res) {
   (await Brand.findOne({ name, genericId }))
     ? res.status(400).send({ message: "Already exist" })
     : (await new Brand({
-        name,
-        genericId,
-        mfrId,
-      }).save())
-    ? res.status(200).send({ message: "Saved successfully" })
-    : res.status(400).send({ message: "Error saving new unit" });
+      name,
+      genericId,
+      mfrId,
+    }).save())
+      ? res.status(200).send({ message: "Saved successfully" })
+      : res.status(400).send({ message: "Error saving new unit" });
 }
 
 async function updateBrand(req, res) {
-  const { id, name, genericId,mfrId } = req.body;
-  (await Brand.findByIdAndUpdate(id, { name, genericId,mfrId }))
+  const { id, name, genericId, mfrId } = req.body;
+  (await Brand.findByIdAndUpdate(id, { name, genericId, mfrId }))
     ? res.status(200).send({ message: "Updated successfully" })
     : res.status(400).send({ message: "Error in update" });
 }

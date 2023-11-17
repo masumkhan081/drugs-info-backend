@@ -15,7 +15,7 @@ async function getStock(req, res, searchObj) {
   Drug.find()
     .sort({ $natural: -1 })
     .limit(obj.limit)
-    .skip(skip)
+    .skip(skip).populate('formulation').populate('unit').populate('brand')
     .then((stock) => {
       res.status(200).send({
         stock,
@@ -31,20 +31,23 @@ async function getStock(req, res, searchObj) {
 }
 
 async function saveDrug(req, res) {
-  const { brandId, formulationId, strength, unitId, available, mrp } = req.body;
+  const { brand, formulation, strength, unit, available, mrp } = req.body;
 
-  (await Drug.findOne({ brandId, formulationId, strength, unitId }))
+  const ind = await Drug.getIndexes();
+  console.log("ind:  "+ ind);
+
+  (await Drug.findOne({ brand, formulation, strength, unit }))
     ? res.status(400).send({ message: "Already exist" })
     : (await new Drug({
-        brandId,
-        formulationId,
-        strength,
-        unitId,
-        available,
-        mrp,
-      }).save())
-    ? res.status(200).send({ message: "Saved successfully" })
-    : res.status(400).send({ message: "Error saving new unit" });
+      brand,
+      formulation,
+      strength,
+      unit,
+      available,
+      mrp,
+    }).save())
+      ? res.status(200).send({ message: "Saved successfully" })
+      : res.status(400).send({ message: "Error saving new unit" });
 }
 
 async function updateDrug(req, res) {

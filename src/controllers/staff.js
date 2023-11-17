@@ -16,6 +16,7 @@ async function getStaff(req, res, searchObj) {
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
+    .populate('user','role')
     .then((staff) => {
       res.status(200).send({
         staff,
@@ -46,7 +47,6 @@ async function saveStaff(req, res) {
     ? res.status(200).send({ message: "Saved successfully" })
     : res.status(400).send({ message: "Error saving new unit" });
 }
-
 
 // have to stop one email for second time
 async function updateStaff(req, res) {

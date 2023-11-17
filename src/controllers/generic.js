@@ -6,8 +6,9 @@ async function getGenericByGroup(req, res) {
   const id=req.params.id;
    
   let msg = "";
-  Generic.find({groupId:id})
-    .sort({ $natural: -1 }) 
+  Generic.find({group:id})
+    .sort({ $natural: -1 })
+    .populate('group')
     .then((generics) => {
       res.send({
         generics,
@@ -31,6 +32,7 @@ async function getGenerics(req, res) {
     .sort({ $natural: -1 })
     .limit(obj.limit)
     .skip(skip)
+    .populate('group')
     .then((generics) => {
       res.send({
         generics,
